@@ -127,13 +127,14 @@ class Options:
 		if self.verbose >= 3:
 			print >>sys.stdout, 'Verbosity set to level %d' % (self.verbose - 1)
 
-		self.filename = args[0]
-		for arg in args[1:]:
+		self.inputFilename = args[0]
+		self.outputFilename = args[1]
+		for arg in args[2:]:
 			sheet, row, column, newValue = arg.split(',',3)
 			changes.append(Change(sheet, row, column, newValue))
 			
 
-		if not self.listener and not self.showlist and not self.filename:
+		if not self.listener and not self.showlist and not self.inputFilename:
 			print >>sys.stdout, 'xlsset: you have to provide a filename as argument'
 			print >>sys.stdout, 'Try `xlsset -h\' for more information.'
 			sys.exit(255)
@@ -218,7 +219,7 @@ class Convertor:
 
 	#fmts.add('spreadsheet', 'xls', 'xls', 'Microsoft Excel 97/2000/XP', 'MS Excel 97')
 	
-	def convert(self, inputfn):
+	def convert(self, inputfn, outputfn):
 		doc = None
 		name = 'Microsoft Excel 97/2000/XP'
 		extension = 'xls'
@@ -253,7 +254,6 @@ class Convertor:
 				   )
 
 			if not op.stdout:
-				outputfn = 'output' + '.' + extension
 				outputurl = unohelper.absolutize( self.cwd, unohelper.systemPathToFileUrl(outputfn) )
 				doc.storeToURL(outputurl, outputprops)
 				error(1, "Output file: %s" % outputfn)
@@ -328,7 +328,7 @@ def main():
 		else:
 			convertor = Convertor()
 
-		convertor.convert(op.filename)
+		convertor.convert(op.inputFilename, op.outputFilename)
 
 	except NoConnectException, e:
 		error(0, "xlsset: could not find an existing connection to Open Office at %s:%s." % (op.server, op.port))

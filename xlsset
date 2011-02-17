@@ -55,12 +55,18 @@ class Change:
 		self.column = column
 		self.newValue = newValue
 	def run(self, doc):
-		cell = doc.getSheets().getByName(self.sheet).getCellByPosition(self.column, self.row)
-		cell.setFormula(self.newValue)
-		if cell.getFormula() == '':
-			print 'failure writing cell' 
-			print 'this happens (for some reason) when you don\'t have write access to the INPUT file'
-			print 'it\'s like uno thinks you want to open this file in read-only mode'
+		try:
+			cell = doc.getSheets().getByName(self.sheet).getCellByPosition(self.column, self.row)
+			cell.setFormula(self.newValue)
+			if cell.getFormula() == '':
+				print 'failure writing cell' 
+				print 'this happens (for some reason) when you don\'t have write access to the INPUT file'
+				print 'it\'s like uno thinks you want to open this file in read-only mode'
+				die(1)
+				return
+		except UnoException, e:
+			print 'failure getting a cell'
+			print 'this usually happens if youre setting an unknown sheet or unknown cell'
 			die(1)
 			return
 
@@ -270,6 +276,8 @@ class Convertor:
 			die(1)
 
 		except UnoException, e:
+			#uncomment this line for more information
+			#raise
 			error(0, "xlsset: UnoException during conversion: %s" % e.Message)
 			error(0, "The provided document cannot be converted to the desired format.")
 			die(1)

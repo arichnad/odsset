@@ -21,18 +21,18 @@ import getopt, sys, os, glob, time
 #extrapaths = ('/usr/lib/openoffice/program/', '/usr/lib/openoffice.org2.0/program/')
 extrapaths = glob.glob('/usr/lib*/openoffice*/program/') + glob.glob('/usr/lib*/ooo*/program') + [ '/Applications/NeoOffice.app/Contents/program', ]
 for path in extrapaths:
-	try:
-		sys.path.append(path)   
-		import uno, unohelper
-		os.environ['PATH'] = '%s:' % path + os.environ['PATH']
-		break
-	except ImportError:
-		sys.path.remove(path)
-		continue
+    try:
+        sys.path.append(path)   
+        import uno, unohelper
+        os.environ['PATH'] = '%s:' % path + os.environ['PATH']
+        break
+    except ImportError:
+        sys.path.remove(path)
+        continue
 else:
-	print >>sys.stdout, "xlsset: Cannot find the pyuno.so library in sys.path and known paths."
-	print >>sys.stdout, "Please locate this library and send your feedback to <tools@lists.rpmforge.net>."
-	sys.exit(1)
+    print >>sys.stdout, "xlsset: Cannot find the pyuno.so library in sys.path and known paths."
+    print >>sys.stdout, "Please locate this library and send your feedback to <tools@lists.rpmforge.net>."
+    sys.exit(1)
 
 from com.sun.star.beans import PropertyValue
 from com.sun.star.connection import NoConnectException
@@ -49,316 +49,316 @@ VERSION = '0.3'
 oopid = None
 
 class Change:
-	def __init__(self, sheet, row, column, newValue):
-		self.sheet = sheet
-		self.row = row
-		self.column = column
-		self.newValue = newValue
-	def run(self, doc):
-		try:
-			cell = doc.getSheets().getByName(self.sheet).getCellByPosition(self.column, self.row)
-			cell.setFormula(self.newValue)
-			if cell.getFormula() == '':
-				print 'failure writing cell' 
-				print 'this happens (for some reason) when you don\'t have write access to the INPUT file'
-				print 'it\'s like uno thinks you want to open this file in read-only mode'
-				die(1)
-				return
-		except UnoException, e:
-			print 'failure getting a cell'
-			print 'this usually happens if youre setting an unknown sheet or unknown cell'
-			die(1)
-			return
+    def __init__(self, sheet, row, column, newValue):
+        self.sheet = sheet
+        self.row = row
+        self.column = column
+        self.newValue = newValue
+    def run(self, doc):
+        try:
+            cell = doc.getSheets().getByName(self.sheet).getCellByPosition(self.column, self.row)
+            cell.setFormula(self.newValue)
+            if cell.getFormula() == '':
+                print 'failure writing cell' 
+                print 'this happens (for some reason) when you don\'t have write access to the INPUT file'
+                print 'it\'s like uno thinks you want to open this file in read-only mode'
+                die(1)
+                return
+        except UnoException, e:
+            print 'failure getting a cell'
+            print 'this usually happens if youre setting an unknown sheet or unknown cell'
+            die(1)
+            return
 
 changes = []
 
 class OutputStream( unohelper.Base, XOutputStream ):
-	def __init__( self ):
-		self.closed = 0
+    def __init__( self ):
+        self.closed = 0
 
-	def closeOutput(self):
-		self.closed = 1
+    def closeOutput(self):
+        self.closed = 1
 
-	def writeBytes( self, seq ):
-		sys.stdout.write( seq.value )
+    def writeBytes( self, seq ):
+        sys.stdout.write( seq.value )
 
-	def flush( self ):
-		pass
+    def flush( self ):
+        pass
 
 
 class Options:
-	def __init__(self, args):
-		self.stdout = False
-		self.showlist = False
-		self.listener = False
-		self.format = None
-		self.verbose = 0
-		self.server = 'localhost'
-		self.port = '2002'
-		self.connection = None
+    def __init__(self, args):
+        self.stdout = False
+        self.showlist = False
+        self.listener = False
+        self.format = None
+        self.verbose = 0
+        self.server = 'localhost'
+        self.port = '2002'
+        self.connection = None
 
-		### Get options from the commandline
-		try:
-			opts, args = getopt.getopt (args, 'c:d:f:hLlp:s:t:v',
-				['connection=', 'format=', 'help', 'listener', 'port=', 'server=', 'show', 'stdout', 'verbose', 'version'] )
-		except getopt.error, exc:
-			print 'xlsset: %s, try xlsset -h for a list of all the options' % str(exc)
-			sys.exit(255)
+        ### Get options from the commandline
+        try:
+            opts, args = getopt.getopt (args, 'c:d:f:hLlp:s:t:v',
+                ['connection=', 'format=', 'help', 'listener', 'port=', 'server=', 'show', 'stdout', 'verbose', 'version'] )
+        except getopt.error, exc:
+            print 'xlsset: %s, try xlsset -h for a list of all the options' % str(exc)
+            sys.exit(255)
 
-		for opt, arg in opts:
-			if opt in ['-h', '--help']:
-				self.usage()
-				print
-				self.help()
-				sys.exit(1)
-			elif opt in ['-c', '--connection']:
-				self.connection = arg
-			elif opt in ['-f', '--format']:
-				self.format = arg
-			elif opt in ['-l', '--listener']:
-				self.listener = True
-			elif opt in ['--show']:
-				self.showlist = True
-			elif opt in ['-p', '--port']:
-				self.port = arg
-			elif opt in ['-s', '--server']:
-				self.server = arg
-			elif opt in ['--stdout']:
-				self.stdout = True
-			elif opt in ['-v', '--verbose']:
-				self.verbose = self.verbose + 1
-			elif opt in ['--version']:
-				self.version()
-				sys.exit(255)
+        for opt, arg in opts:
+            if opt in ['-h', '--help']:
+                self.usage()
+                print
+                self.help()
+                sys.exit(1)
+            elif opt in ['-c', '--connection']:
+                self.connection = arg
+            elif opt in ['-f', '--format']:
+                self.format = arg
+            elif opt in ['-l', '--listener']:
+                self.listener = True
+            elif opt in ['--show']:
+                self.showlist = True
+            elif opt in ['-p', '--port']:
+                self.port = arg
+            elif opt in ['-s', '--server']:
+                self.server = arg
+            elif opt in ['--stdout']:
+                self.stdout = True
+            elif opt in ['-v', '--verbose']:
+                self.verbose = self.verbose + 1
+            elif opt in ['--version']:
+                self.version()
+                sys.exit(255)
 
-		### Enable verbosity
-		if self.verbose >= 3:
-			print >>sys.stdout, 'Verbosity set to level %d' % (self.verbose - 1)
+        ### Enable verbosity
+        if self.verbose >= 3:
+            print >>sys.stdout, 'Verbosity set to level %d' % (self.verbose - 1)
 
-		self.inputFilename = args[0]
-		self.outputFilename = args[1]
-		for arg in args[2:]:
-			sheet, row, column, newValue = arg.split(',',3)
-			changes.append(Change(sheet, row, column, newValue))
-			
+        self.inputFilename = args[0]
+        self.outputFilename = args[1]
+        for arg in args[2:]:
+            sheet, row, column, newValue = arg.split(',',3)
+            changes.append(Change(sheet, row, column, newValue))
+            
 
-		if not self.listener and not self.showlist and not self.inputFilename:
-			print >>sys.stdout, 'xlsset: you have to provide a filename as argument'
-			print >>sys.stdout, 'Try `xlsset -h\' for more information.'
-			sys.exit(255)
+        if not self.listener and not self.showlist and not self.inputFilename:
+            print >>sys.stdout, 'xlsset: you have to provide a filename as argument'
+            print >>sys.stdout, 'Try `xlsset -h\' for more information.'
+            sys.exit(255)
 
-		### Set connection string
-		if not self.connection:
-			self.connection = "socket,host=%s,port=%s;urp;StarOffice.ComponentContext" % (self.server, self.port)
+        ### Set connection string
+        if not self.connection:
+            self.connection = "socket,host=%s,port=%s;urp;StarOffice.ComponentContext" % (self.server, self.port)
 #            self.connection = "socket,host=%s,port=%s;urp;" % (self.server, self.port)
 
-		### If no format was specified, probe it or provide it
-		if not self.format:
-			l = sys.argv[0].split('2')
-			if len(l) == 2:
-				self.format = l[1]
-			else:
-				self.format = 'pdf'
+        ### If no format was specified, probe it or provide it
+        if not self.format:
+            l = sys.argv[0].split('2')
+            if len(l) == 2:
+                self.format = l[1]
+            else:
+                self.format = 'pdf'
 
-	def version(self):
-		print 'xlsset %s' % VERSION
-		print 'Written by Dag Wieers <dag@wieers.com>'
-		print 'Homepage at http://dag.wieers.com/home-made/unoconv/'
-		print
-		print 'platform %s/%s' % (os.name, sys.platform)
-		print 'python %s' % sys.version
-		print
-		print 'build revision $Rev$'
+    def version(self):
+        print 'xlsset %s' % VERSION
+        print 'Written by Dag Wieers <dag@wieers.com>'
+        print 'Homepage at http://dag.wieers.com/home-made/unoconv/'
+        print
+        print 'platform %s/%s' % (os.name, sys.platform)
+        print 'python %s' % sys.version
+        print
+        print 'build revision $Rev$'
 
-	def usage(self):
-		print >>sys.stdout, 'usage: xlsset [options] file [file2 ..]'
+    def usage(self):
+        print >>sys.stdout, 'usage: xlsset [options] file [file2 ..]'
 
-	def help(self):
-		print >>sys.stdout, '''Convert from and to any format supported by OpenOffice
+    def help(self):
+        print >>sys.stdout, '''Convert from and to any format supported by OpenOffice
 
 xlsset options:
   -c, --connection=string  use a custom connection string
-						   (document, graphics, presentation, spreadsheet)
+                           (document, graphics, presentation, spreadsheet)
   -f, --format=format      specify the output format
   -l, --listener           start a listener to use by xlsset clients
   -p, --port               specify the port (default: 2002) 
-						   to be used by client or listener
+                           to be used by client or listener
   -s, --server             specify the server address (default: localhost)
-						   to be used by client or listener
-	  --show               list the available output formats
-	  --stdout             write output to stdout
+                           to be used by client or listener
+      --show               list the available output formats
+      --stdout             write output to stdout
   -v, --verbose            be more and more verbose
 '''
 
 class Convertor:
-	def __init__(self):
-		global oopid
-		unocontext = None
+    def __init__(self):
+        global oopid
+        unocontext = None
 
-		### Do the OpenOffice component dance
-		self.context = uno.getComponentContext()
-		resolver = self.context.ServiceManager.createInstanceWithContext("com.sun.star.bridge.UnoUrlResolver", self.context)
+        ### Do the OpenOffice component dance
+        self.context = uno.getComponentContext()
+        resolver = self.context.ServiceManager.createInstanceWithContext("com.sun.star.bridge.UnoUrlResolver", self.context)
 
-		### Test for an existing connection
-		try:
-			unocontext = resolver.resolve("uno:%s" % op.connection)
-		except Exception, e:
-			error(2, "Existing listener not found.\n%s" % e)
+        ### Test for an existing connection
+        try:
+            unocontext = resolver.resolve("uno:%s" % op.connection)
+        except Exception, e:
+            error(2, "Existing listener not found.\n%s" % e)
 
-			### Test if we can use an Openoffice *binary* in our (modified) path
-			for bin in ('soffice.bin', 'soffice', ):
-				error(2, "Trying to launch our own listener using %s." % bin)
-				try:
-					oopid = os.spawnvp(os.P_NOWAIT, bin, [bin, "-nologo", "-nodefault", "-accept=%s" % op.connection]);
-					time.sleep(1)
-					unocontext = resolver.resolve("uno:%s" % op.connection)
-					break
-				except Exception, e:
-					error(3, "Launch of %s failed.\n%s" % (bin, e))
-					continue
+            ### Test if we can use an Openoffice *binary* in our (modified) path
+            for bin in ('soffice.bin', 'soffice', ):
+                error(2, "Trying to launch our own listener using %s." % bin)
+                try:
+                    oopid = os.spawnvp(os.P_NOWAIT, bin, [bin, "-nologo", "-nodefault", "-accept=%s" % op.connection]);
+                    time.sleep(1)
+                    unocontext = resolver.resolve("uno:%s" % op.connection)
+                    break
+                except Exception, e:
+                    error(3, "Launch of %s failed.\n%s" % (bin, e))
+                    continue
 
-		if not unocontext:
-			die(251, "Unable to connect or start own listener. Aborting.")
+        if not unocontext:
+            die(251, "Unable to connect or start own listener. Aborting.")
 
-		### And some more OpenOffice magic
-		unosvcmgr = unocontext.ServiceManager
-		self.desktop = unosvcmgr.createInstanceWithContext("com.sun.star.frame.Desktop", unocontext)
-		self.cwd = unohelper.systemPathToFileUrl( os.getcwd() )
+        ### And some more OpenOffice magic
+        unosvcmgr = unocontext.ServiceManager
+        self.desktop = unosvcmgr.createInstanceWithContext("com.sun.star.frame.Desktop", unocontext)
+        self.cwd = unohelper.systemPathToFileUrl( os.getcwd() )
 
-	#fmts.add('spreadsheet', 'xls', 'xls', 'Microsoft Excel 97/2000/XP', 'MS Excel 97')
-	
-	def convert(self, inputfn, outputfn):
-		doc = None
-		name = 'Microsoft Excel 97/2000/XP'
-		extension = 'xls'
-		filter = 'MS Excel 97'
+    #fmts.add('spreadsheet', 'xls', 'xls', 'Microsoft Excel 97/2000/XP', 'MS Excel 97')
+    
+    def convert(self, inputfn, outputfn):
+        doc = None
+        name = 'Microsoft Excel 97/2000/XP'
+        extension = 'xls'
+        filter = 'MS Excel 97'
 
-		if op.verbose > 0:
-			print >>sys.stdout, 'Input file:', inputfn
+        if op.verbose > 0:
+            print >>sys.stdout, 'Input file:', inputfn
 
-		if not os.path.exists(inputfn):
-			print >>sys.stdout, 'xlsset: file `%s\' does not exist.' % inputfn
-			die(1)
+        if not os.path.exists(inputfn):
+            print >>sys.stdout, 'xlsset: file `%s\' does not exist.' % inputfn
+            die(1)
 
-		try:
-			### Load inputfile
-			inputprops = ( PropertyValue( "Hidden" , 0 , True, 0 ), )
+        try:
+            ### Load inputfile
+            inputprops = ( PropertyValue( "Hidden" , 0 , True, 0 ), )
 
-			inputurl = unohelper.absolutize(self.cwd, unohelper.systemPathToFileUrl(inputfn))
-			doc = self.desktop.loadComponentFromURL( inputurl , "_blank", 0, inputprops )
+            inputurl = unohelper.absolutize(self.cwd, unohelper.systemPathToFileUrl(inputfn))
+            doc = self.desktop.loadComponentFromURL( inputurl , "_blank", 0, inputprops )
 
-			if not doc:
-				raise UnoException("File could not be loaded by OpenOffice", None)
+            if not doc:
+                raise UnoException("File could not be loaded by OpenOffice", None)
 
-			for change in changes:
-				change.run(doc)
+            for change in changes:
+                change.run(doc)
 
 
-			### Write outputfile
-			outputprops = (
-					PropertyValue( "FilterName" , 0, filter , 0 ),
-					PropertyValue( "Overwrite" , 0, True , 0 ),
-					PropertyValue( "OutputStream", 0, OutputStream(), 0),
-				   )
+            ### Write outputfile
+            outputprops = (
+                    PropertyValue( "FilterName" , 0, filter , 0 ),
+                    PropertyValue( "Overwrite" , 0, True , 0 ),
+                    PropertyValue( "OutputStream", 0, OutputStream(), 0),
+                   )
 
-			if not op.stdout:
-				outputurl = unohelper.absolutize( self.cwd, unohelper.systemPathToFileUrl(outputfn) )
-				doc.storeToURL(outputurl, outputprops)
-				error(1, "Output file: %s" % outputfn)
-			else:
-				doc.storeToURL("private:stream", outputprops)
+            if not op.stdout:
+                outputurl = unohelper.absolutize( self.cwd, unohelper.systemPathToFileUrl(outputfn) )
+                doc.storeToURL(outputurl, outputprops)
+                error(1, "Output file: %s" % outputfn)
+            else:
+                doc.storeToURL("private:stream", outputprops)
 
-			doc.dispose()
+            doc.dispose()
 
-		except SystemError, e:
-			error(0, "xlsset: SystemError during conversion: %s" % e)
-			error(0, "The provided document cannot be converted to the desired format.")
-			die(1)
+        except SystemError, e:
+            error(0, "xlsset: SystemError during conversion: %s" % e)
+            error(0, "The provided document cannot be converted to the desired format.")
+            die(1)
 
-		except UnoException, e:
-			#uncomment this line for more information
-			#raise
-			error(0, "xlsset: UnoException during conversion: %s" % e.Message)
-			error(0, "The provided document cannot be converted to the desired format.")
-			die(1)
+        except UnoException, e:
+            #uncomment this line for more information
+            #raise
+            error(0, "xlsset: UnoException during conversion: %s" % e.Message)
+            error(0, "The provided document cannot be converted to the desired format.")
+            die(1)
 
-		except IOException, e:
-			error(0, "xlsset: IOException during conversion: %s" % e.Message)
-			error(0, "The provided document cannot be exported to %s." % name)
-			die(1)
+        except IOException, e:
+            error(0, "xlsset: IOException during conversion: %s" % e.Message)
+            error(0, "The provided document cannot be exported to %s." % name)
+            die(1)
 
-		except CannotConvertException, e:
-			error(0, "xlsset: CannotConvertException during conversion: %s" % e.Message)
-			die(1)
+        except CannotConvertException, e:
+            error(0, "xlsset: CannotConvertException during conversion: %s" % e.Message)
+            die(1)
 
 class Listener:
-	def __init__(self):
-		error(1, "Start listener on %s:%s" % (op.server, op.port))
-		for bin in ('soffice.bin', 'soffice', ):
-			error(2, "Warning: trying to launch %s." % bin)
-			try:
-				os.execvp(bin, [bin, "-nologo", "-nodefault", "-accept=%s" % op.connection]);
-			except:
-				continue
-		else:
-			die(254, "Failed to start listener on %s:%s" % (op.server, op.port))
-		die(253, "Existing listener found, aborting.")
+    def __init__(self):
+        error(1, "Start listener on %s:%s" % (op.server, op.port))
+        for bin in ('soffice.bin', 'soffice', ):
+            error(2, "Warning: trying to launch %s." % bin)
+            try:
+                os.execvp(bin, [bin, "-nologo", "-nodefault", "-accept=%s" % op.connection]);
+            except:
+                continue
+        else:
+            die(254, "Failed to start listener on %s:%s" % (op.server, op.port))
+        die(253, "Existing listener found, aborting.")
 
 def error(level, str):
-	"Output error message"
-	if level <= op.verbose:
-		print >>sys.stdout, str
+    "Output error message"
+    if level <= op.verbose:
+        print >>sys.stdout, str
 
 def info(level, str):
-	"Output info message"
-	if not op.stdout and level <= op.verbose:
-		print >>sys.stdout, str
+    "Output info message"
+    if not op.stdout and level <= op.verbose:
+        print >>sys.stdout, str
 
 def die(ret, str=None):
-	"Print error and exit with errorcode"
-	global oopid
-	if str:
-		error(0, 'Error: %s' % str)
-	if oopid:
-		error(2, 'Taking down OpenOffice with pid %s.' % oopid)
+    "Print error and exit with errorcode"
+    global oopid
+    if str:
+        error(0, 'Error: %s' % str)
+    if oopid:
+        error(2, 'Taking down OpenOffice with pid %s.' % oopid)
 #        os.setpgid(oopid, 0)
 #        os.killpg(os.getpgid(oopid), 15)
-		try:
-			os.kill(oopid, 15)
-			error(2, 'Waiting for OpenOffice with pid %s to disappear.' % oopid)
-			os.waitpid(oopid, os.WUNTRACED)
-		except:
-			error(2, 'No OpenOffice with pid %s to take down' % oopid)
-	sys.exit(ret)
+        try:
+            os.kill(oopid, 15)
+            error(2, 'Waiting for OpenOffice with pid %s to disappear.' % oopid)
+            os.waitpid(oopid, os.WUNTRACED)
+        except:
+            error(2, 'No OpenOffice with pid %s to take down' % oopid)
+    sys.exit(ret)
 
 def main():
-	try:
-		if op.listener:
-			listener = Listener()
-		else:
-			convertor = Convertor()
+    try:
+        if op.listener:
+            listener = Listener()
+        else:
+            convertor = Convertor()
 
-		convertor.convert(op.inputFilename, op.outputFilename)
+        convertor.convert(op.inputFilename, op.outputFilename)
 
-	except NoConnectException, e:
-		error(0, "xlsset: could not find an existing connection to Open Office at %s:%s." % (op.server, op.port))
-		if op.connection:
-			error(0, "Please start an OpenOffice instance on server '%s' by doing:\n\n    xlsset --listener --server %s --port %s\n\nor alternatively:\n\n    ooffice -nologo -nodefault -accept=\"%s\"" % (op.server, op.server, op.port, op.connection))
-		else:
-			error(0, "Please start an OpenOffice instance on server '%s' by doing:\n\n    xlsset --listener --server %s --port %s\n\nor alternatively:\n\n    ooffice -nologo -nodefault -accept=\"socket,host=%s,port=%s;urp;\"" % (op.server, op.server, op.port, op.server, op.port))
-			error(0, "Please start an ooffice instance on server '%s' by doing:\n\n    ooffice -nologo -nodefault -accept=\"socket,host=localhost,port=%s;urp;\"" % (op.server, op.port))
-		die(1)
+    except NoConnectException, e:
+        error(0, "xlsset: could not find an existing connection to Open Office at %s:%s." % (op.server, op.port))
+        if op.connection:
+            error(0, "Please start an OpenOffice instance on server '%s' by doing:\n\n    xlsset --listener --server %s --port %s\n\nor alternatively:\n\n    ooffice -nologo -nodefault -accept=\"%s\"" % (op.server, op.server, op.port, op.connection))
+        else:
+            error(0, "Please start an OpenOffice instance on server '%s' by doing:\n\n    xlsset --listener --server %s --port %s\n\nor alternatively:\n\n    ooffice -nologo -nodefault -accept=\"socket,host=%s,port=%s;urp;\"" % (op.server, op.server, op.port, op.server, op.port))
+            error(0, "Please start an ooffice instance on server '%s' by doing:\n\n    ooffice -nologo -nodefault -accept=\"socket,host=localhost,port=%s;urp;\"" % (op.server, op.port))
+        die(1)
 #    except UnboundLocalError:
 #        die(252, "Failed to connect to remote listener.")
-	except OSError:
-		error(0, "Warning: failed to launch OpenOffice. Aborting.")
+    except OSError:
+        error(0, "Warning: failed to launch OpenOffice. Aborting.")
 
 ### Main entrance
 if __name__ == '__main__':
 
-	op = Options(sys.argv[1:])
-	try:
-		main()
-	except KeyboardInterrupt, e:
-		die(6, 'Exiting on user request')
-	die(0)
+    op = Options(sys.argv[1:])
+    try:
+        main()
+    except KeyboardInterrupt, e:
+        die(6, 'Exiting on user request')
+    die(0)

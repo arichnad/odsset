@@ -163,7 +163,7 @@ class Options:
 	def version(self):
 		print 'xlsset %s' % VERSION
 		print 'Written by Dag Wieers <dag@wieers.com>'
-		print 'Homepage at http://dag.wieers.com/home-made/xlsset/'
+		print 'Homepage at http://dag.wieers.com/home-made/unoconv/'
 		print
 		print 'platform %s/%s' % (os.name, sys.platform)
 		print 'python %s' % sys.version

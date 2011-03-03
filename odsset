@@ -436,13 +436,13 @@ class Convertor:
         ### If no doctype given, check list of acceptable formats for input file ext doctype
         ### FIXME: This should go into the for-loop to match each individual input filename
         if outputfmt:
-            inputext = os.path.splitext(fn)[1]
-            inputfmt = fmts.byextension(inputext)
-            if inputfmt:
-                for fmt in outputfmt:
-                    if inputfmt[0].doctype == fmt.doctype:
-                        doctype = inputfmt[0].doctype
-                        outputfmt = fmt
+            ext = os.path.splitext(fn)[1]
+            fmt = fmts.byextension(ext)
+            if fmt:
+                for cur in outputfmt:
+                    if fmt[0].doctype == cur.doctype:
+                        doctype = fmt[0].doctype
+                        outputfmt = cur
                         break
                 else:
                     outputfmt = outputfmt[0]

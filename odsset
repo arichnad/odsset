@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
-#DEPS:  sudo apt-get --no-install-recommends install python-uno libreoffice-common
+#DEPS:  sudo apt-get --no-install-recommends install python-uno libreoffice-common libreoffice-calc libreoffice-base
+
+#testing:  ./odsset -f ods input-aterrasys004.ods test.ods 'Sheet1,1,5,111130'
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU Library General Public License as published by

@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-#DEPS:  sudo apt-get --no-install-recommends install python-uno libreoffice-common libreoffice-calc libreoffice-base
+#DEPS:  sudo apt-get --no-install-recommends install python3-uno libreoffice-common libreoffice-calc libreoffice-base
 
 #testing:  ./odsset -f ods input-aterrasys004.ods test.ods 'Sheet1,1,5,111130'
 
@@ -32,8 +32,8 @@ for path in extrapaths:
         sys.path.remove(path)
         continue
 else:
-    print >>sys.stdout, "odsset: Cannot find the pyuno.so library in sys.path and known paths."
-    print >>sys.stdout, "Please locate this library and send your feedback to <tools@lists.rpmforge.net>."
+    print("odsset: Cannot find the pyuno.so library in sys.path and known paths.", file=sys.stdout)
+    print("Please locate this library and send your feedback to <tools@lists.rpmforge.net>.", file=sys.stdout)
     sys.exit(1)
 
 from com.sun.star.beans import PropertyValue
@@ -62,14 +62,14 @@ class Change:
             cell = doc.getSheets().getByName(self.sheet).getCellByPosition(self.column, self.row)
             cell.setFormula(self.newValue)
             if cell.getFormula() == '':
-                print 'failure writing cell' 
-                print 'this happens (for some reason) when you don\'t have write access to the INPUT file'
-                print 'it\'s like uno thinks you want to open this file in read-only mode'
+                print('failure writing cell' )
+                print('this happens (for some reason) when you don\'t have write access to the INPUT file')
+                print('it\'s like uno thinks you want to open this file in read-only mode')
                 die(1)
                 return
-        except UnoException, e:
-            print 'failure getting a cell'
-            print 'this usually happens if youre setting an unknown sheet or unknown cell'
+        except UnoException as e:
+            print('failure getting a cell')
+            print('this usually happens if youre setting an unknown sheet or unknown cell')
             die(1)
             return
 
@@ -118,10 +118,10 @@ class FmtList:
                 return ret
 
     def display(self, doctype):
-        print >>sys.stdout, "The following list of %s formats are currently available:\n" % doctype
+        print("The following list of %s formats are currently available:\n" % doctype, file=sys.stdout)
         for fmt in self.list:
             if fmt.doctype == doctype:
-                print >>sys.stdout, "  %-8s - %s" % (fmt.name, fmt)
+                print("  %-8s - %s" % (fmt.name, fmt), file=sys.stdout)
         print >>sys.stdout
 
 class OutputStream( unohelper.Base, XOutputStream ):
@@ -281,8 +281,8 @@ class Options:
         try:
             opts, args = getopt.getopt (args, 'c:d:f:hLlp:s:t:v',
                 ['connection=', 'doctype=', 'format=', 'help', 'listener', 'port=', 'server=', 'show', 'stdout', 'verbose', 'version'] )
-        except getopt.error, exc:
-            print 'odsset: %s, try odsset -h for a list of all the options' % str(exc)
+        except getopt.error as exc:
+            print('odsset: %s, try odsset -h for a list of all the options' % str(exc))
             sys.exit(255)
 
         for opt, arg in opts:
@@ -315,7 +315,7 @@ class Options:
 
         ### Enable verbosity
         if self.verbose >= 3:
-            print >>sys.stdout, 'Verbosity set to level %d' % (self.verbose - 1)
+            print('Verbosity set to level %d' % (self.verbose - 1), file=sys.stdout)
 
         self.inputFilename = args[0]
         self.outputFilename = args[1]
@@ -325,8 +325,8 @@ class Options:
             
 
         if not self.listener and not self.showlist and self.doctype != 'list' and not self.inputFilename:
-            print >>sys.stdout, 'odsset: you have to provide a filename as argument'
-            print >>sys.stdout, 'Try `odsset -h\' for more information.'
+            print('odsset: you have to provide a filename as argument', file=sys.stdout)
+            print('Try `odsset -h\' for more information.', file=sys.stdout)
             sys.exit(255)
 
         ### Set connection string
@@ -358,20 +358,20 @@ class Options:
                 self.format = 'pdf'
 
     def version(self):
-        print 'odsset %s' % VERSION
-        print 'Written by Dag Wieers <dag@wieers.com>'
-        print 'Homepage at http://dag.wieers.com/home-made/unoconv/'
+        print('odsset %s' % VERSION)
+        print('Written by Dag Wieers <dag@wieers.com>')
+        print('Homepage at http://dag.wieers.com/home-made/unoconv/')
         print
-        print 'platform %s/%s' % (os.name, sys.platform)
-        print 'python %s' % sys.version
+        print('platform %s/%s' % (os.name, sys.platform))
+        print('python %s' % sys.version)
         print
-        print 'build revision $Rev$'
+        print('build revision $Rev$')
 
     def usage(self):
-        print >>sys.stdout, 'usage: odsset [options] file [file2 ..]'
+        print('usage: odsset [options] file [file2 ..]', file=sys.stdout)
 
     def help(self):
-        print >>sys.stdout, '''Convert from and to any format supported by OpenOffice
+        print('''Convert from and to any format supported by OpenOffice
 
 odsset options:
   -c, --connection=string  use a custom connection string
@@ -386,7 +386,7 @@ odsset options:
       --show               list the available output formats
       --stdout             write output to stdout
   -v, --verbose            be more and more verbose
-'''
+''', file=sys.stdout)
 
 class Convertor:
     def __init__(self):
@@ -400,7 +400,7 @@ class Convertor:
         ### Test for an existing connection
         try:
             unocontext = resolver.resolve("uno:%s" % op.connection)
-        except Exception, e:
+        except Exception as e:
             error(2, "Existing listener not found.\n%s" % e)
 
             ### Test if we can use an Openoffice *binary* in our (modified) path
@@ -411,7 +411,7 @@ class Convertor:
                     time.sleep(1)
                     unocontext = resolver.resolve("uno:%s" % op.connection)
                     break
-                except Exception, e:
+                except Exception as e:
                     error(3, "Launch of %s failed.\n%s" % (bin, e))
                     continue
 
@@ -448,16 +448,16 @@ class Convertor:
                         break
                 else:
                     outputfmt = outputfmt[0]
-    #       print >>sys.stdout, 'odsset: format `%s\' is part of multiple doctypes %s, selecting `%s\'.' % (format, [fmt.doctype for fmt in outputfmt], outputfmt[0].doctype)
+    #       print('odsset: format `%s\' is part of multiple doctypes %s, selecting `%s\'.' % (format, [fmt.doctype for fmt in outputfmt], outputfmt[0].doctype), file=sys.stdout)
             else:
                 outputfmt = outputfmt[0]
 
         ### No format found, throw error
         if not outputfmt:
             if doctype:
-                print >>sys.stdout, 'odsset: format [%s/%s] is not known to odsset.' % (op.doctype, op.format)
+                print('odsset: format [%s/%s] is not known to odsset.' % (op.doctype, op.format), file=sys.stdout)
             else:
-                print >>sys.stdout, 'odsset: format [%s] is not known to odsset.' % op.format
+                print('odsset: format [%s] is not known to odsset.' % op.format, file=sys.stdout)
             die(1)
 
         return outputfmt
@@ -467,10 +467,10 @@ class Convertor:
         outputfmt = self.getformat(outputfn)
 
         if op.verbose > 0:
-            print >>sys.stdout, 'Input file:', inputfn
+            print('Input file:', inputfn, file=sys.stdout)
 
         if not os.path.exists(inputfn):
-            print >>sys.stdout, 'odsset: file `%s\' does not exist.' % inputfn
+            print('odsset: file `%s\' does not exist.' % inputfn, file=sys.stdout)
             exitcode = 1
             return
 
@@ -507,24 +507,24 @@ class Convertor:
 
             doc.dispose()
 
-        except SystemError, e:
+        except SystemError as e:
             error(0, "odsset: SystemError during conversion: %s" % e)
             error(0, "The provided document cannot be converted to the desired format.")
             exitcode = 1
 
-        except UnoException, e:
+        except UnoException as e:
             #uncomment this line for more information
             #raise
             error(0, "odsset: UnoException during conversion: %s" % e.Message)
             error(0, "The provided document cannot be converted to the desired format.")
             exitcode = 1
 
-        except IOException, e:
+        except IOException as e:
             error(0, "odsset: IOException during conversion: %s" % e.Message)
             error(0, "The provided document cannot be exported to %s." % outputfmt)
             exitcode = 1
 
-        except CannotConvertException, e:
+        except CannotConvertException as e:
             error(0, "odsset: CannotConvertException during conversion: %s" % e.Message)
             exitcode = 1
 
@@ -544,12 +544,12 @@ class Listener:
 def error(level, str):
     "Output error message"
     if level <= op.verbose:
-        print >>sys.stdout, str
+        print(str, file=sys.stdout)
 
 def info(level, str):
     "Output info message"
     if not op.stdout and level <= op.verbose:
-        print >>sys.stdout, str
+        print(str, file=sys.stdout)
 
 def die(ret, str=None):
     "Print error and exit with errorcode"
@@ -577,7 +577,7 @@ def main():
 
         convertor.convert(op.inputFilename, op.outputFilename)
 
-    except NoConnectException, e:
+    except NoConnectException as e:
         error(0, "odsset: could not find an existing connection to Open Office at %s:%s." % (op.server, op.port))
         if op.connection:
             error(0, "Please start an OpenOffice instance on server '%s' by doing:\n\n    odsset --listener --server %s --port %s\n\nor alternatively:\n\n    ooffice --nologo --nodefault --accept=\"%s\"" % (op.server, op.server, op.port, op.connection))
@@ -597,6 +597,6 @@ if __name__ == '__main__':
     op = Options(sys.argv[1:])
     try:
         main()
-    except KeyboardInterrupt, e:
+    except KeyboardInterrupt as e:
         die(6, 'Exiting on user request')
     die(exitcode)

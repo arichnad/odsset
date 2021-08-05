@@ -2,7 +2,7 @@
 
 #DEPS:  sudo apt-get --no-install-recommends install python3-uno libreoffice-common libreoffice-calc libreoffice-base
 
-#testing:  ./odsset --format=ods --output=test.ods input-aterrasys004.ods 'Sheet1,1,5,111130'
+#testing:  ./odsset --format=ods --output=output.ods input.ods 'Sheet1,1,5,111130'
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
